@@ -1,26 +1,19 @@
 package se.uu.it.asd.match;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.ConnectivityManager;
-import android.os.Message;
-import android.support.v4.app.ActivityCompat;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Adapter;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.TextView;
 
 import com.android.volley.Response;
 
@@ -37,8 +30,8 @@ import se.uu.it.asd.match.utils.MatchAPI;
 
 
 public class MyActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
-    public final static String EXTRA_MESSAGE = "se.uu.it.asd.match.MESSAGE";
     public final static String REQUEST_INFO = "se.uu.it.asd.match.REQUEST_INFO";
+    public final static String REQUEST_SERVICE_LIST = "se.uu.it.asd.match.REQUEST_SERVICE_LIST";
     private static MatchAPI mAPI;
     private CustomListViewAdapter adapter;
     ListView listView;
@@ -49,12 +42,21 @@ public class MyActivity extends AppCompatActivity implements AdapterView.OnItemC
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_my);
 
-        mAPI = MatchAPI.getInstance(this);
-        rowItems = new ArrayList<RowItemService>();
-        listView = (ListView) findViewById(R.id.main_list_view);
-        adapter = new CustomListViewAdapter(this, R.layout.list_item, rowItems);
-        listView.setAdapter(adapter);
-        listView.setOnItemClickListener(this);
+        if(savedInstanceState == null){
+            mAPI = MatchAPI.getInstance(this);
+            rowItems = new ArrayList<RowItemService>();
+            listView = (ListView) findViewById(R.id.main_list_view);
+            adapter = new CustomListViewAdapter(this, R.layout.list_item, rowItems);
+            listView.setAdapter(adapter);
+            listView.setOnItemClickListener(this);
+            fetchList();
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putParcelableArrayList(REQUEST_SERVICE_LIST, (ArrayList<? extends Parcelable>) rowItems);
+        super.onSaveInstanceState(outState);
     }
 
     @Override
@@ -62,6 +64,13 @@ public class MyActivity extends AppCompatActivity implements AdapterView.OnItemC
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main_activity_resource, menu);
         return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        rowItems = savedInstanceState.getParcelableArrayList(REQUEST_SERVICE_LIST);
+        adapter.addAll(rowItems);
     }
 
     @Override
@@ -73,23 +82,14 @@ public class MyActivity extends AppCompatActivity implements AdapterView.OnItemC
 
         //noinspection SimplifiableIfStatement
         switch (item.getItemId()) {
-            case R.id.action_search:
-                //openSearch();
-                return true;
             case R.id.action_settings:
-                //openSettings();
+                return true;
+            case R.id.action_update_list:
+                fetchList();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
-    }
-
-    public void sendMessage(View view){
-        Intent intent = new Intent(this, DisplayMessageActivity.class);
-        EditText editText = (EditText) findViewById(R.id.edit_message);
-        String message = editText.getText().toString();
-        intent.putExtra(EXTRA_MESSAGE, message);
-        startActivity(intent);
     }
 
     private String getStringOrNull(JSONArray response, int index) {
@@ -105,7 +105,7 @@ public class MyActivity extends AppCompatActivity implements AdapterView.OnItemC
         }
     }
 
-    public void fetchList(View view) throws JSONException {
+    public void fetchList() {
         ConnectivityManager connManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         if (connManager.getActiveNetworkInfo().isConnected()) {
             Log.d("NETWORK", "Fetch task");
@@ -114,7 +114,7 @@ public class MyActivity extends AppCompatActivity implements AdapterView.OnItemC
                 public void onResponse(JSONArray response) {
                     JSONObject json;
                     JSONArray arr;
-                    ArrayList<RowItemService> rowItems = new ArrayList<RowItemService>();
+                    rowItems = new ArrayList<RowItemService>();
                     for(int i=0; i<response.length(); i++){
                         try {
                             json = response.getJSONObject(i);
@@ -125,13 +125,12 @@ public class MyActivity extends AppCompatActivity implements AdapterView.OnItemC
                                 skills[skill_no] = (String) arr.get(skill_no);
                             }
 
-                            rowItems.add(new RowItemService((int)json.get("id"), (int)json.get("assigned"), (String[]) skills,
+                            rowItems.add(new RowItemService((int)json.get("id"), (int)json.get("assigned"), skills,
                                     (String) json.get("request"), (String)json.get("user_request"), R.drawable.ic_contact_picture));
                         } catch(JSONException e){
                             Log.d("ERROR", "JSON object cannot be added");
                         }
                     }
-
                     adapter.clear();
                     adapter.addAll(rowItems);
                 }
@@ -158,8 +157,7 @@ public class MyActivity extends AppCompatActivity implements AdapterView.OnItemC
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         Intent intent = new Intent(this, ServiceItem.class);
-        RowItemService row = rowItems.get(position);
-        intent.putExtra(REQUEST_INFO, row);
+        intent.putExtra(REQUEST_INFO, rowItems.get(position));
         startActivity(intent);
     }
 }

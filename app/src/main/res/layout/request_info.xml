@@ -37,6 +37,7 @@
             android:padding="15sp"
             android:textColor="#3399FF"
             android:textSize="14sp"
+            android:lineSpacingMultiplier="1.4"
             android:layout_below="@+id/request_info_user"
             android:layout_toRightOf="@+id/request_info_icon"/>
     </LinearLayout>

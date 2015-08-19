@@ -26,7 +26,7 @@ public class RowItemService implements Parcelable{
         this.assigned = assigned;
         this.skills = skills;
         this.request = request;
-        this.user_request = user_request;
+        this.user_request = "@"+user_request;
         this.image = image;
     }
 

@@ -1,13 +1,14 @@
 <resources>
     <string name="app_name">Match</string>
-    <string name="edit_message">Edit Message</string>
-    <string name="button_send">Send</string>
-    <string name="hello_world">Hello world!</string>
+
+    <!--ActionBar-->
     <string name="action_settings">Settings</string>
     <string name="action_search">Search</string>
+    <string name="action_update_list">Update</string>
+    <!--end -->
+
     <string name="title_activity_display_message">My Message</string>
     <string name="image">Image</string>
-    <string name="refresh_services">Update</string>
     <string name="request_info_user">user</string>
     <string name="request_info_description">description</string>
 </resources>

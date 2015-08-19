@@ -32,6 +32,20 @@ public class CustomListViewAdapter extends ArrayAdapter<RowItemService> {
         TextView desc;
     }
 
+    private String getShortDescription(String description){
+        int request_size = description.split(" ").length;
+        int max_length = request_size > 10 ? 10 : request_size;
+        String[] sentences = description.split(" ");
+        StringBuilder builder = new StringBuilder();
+        for(int i=0; i<max_length; i++){
+            if(i==max_length-1)
+                builder.append(sentences[i]+"...");
+            else
+                builder.append(sentences[i]+" ");
+        }
+        return builder.toString();
+    }
+
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         ViewHolder holder;
@@ -50,7 +64,7 @@ public class CustomListViewAdapter extends ArrayAdapter<RowItemService> {
             holder = (ViewHolder) convertView.getTag();
         }
         holder.title.setText(rowItem.getUser_request());
-        holder.desc.setText(rowItem.getRequest());
+        holder.desc.setText(getShortDescription(rowItem.getRequest()));
         holder.imageView.setImageResource(rowItem.getImage());
 
         return convertView;
