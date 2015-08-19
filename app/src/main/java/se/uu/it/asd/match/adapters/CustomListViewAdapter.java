@@ -2,7 +2,6 @@ package se.uu.it.asd.match.adapters;
 
 import android.app.Activity;
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -43,7 +42,7 @@ public class CustomListViewAdapter extends ArrayAdapter<RowItemService> {
         if(convertView == null){
             convertView = mInflater.inflate(R.layout.list_item, null);
             holder = new ViewHolder();
-            holder.desc = (TextView) convertView.findViewById(R.id.desc);
+            holder.desc = (TextView) convertView.findViewById(R.id.item_desc);
             holder.title = (TextView) convertView.findViewById(R.id.item_user_name);
             holder.imageView = (ImageView) convertView.findViewById(R.id.icon);
             convertView.setTag(holder);

@@ -20,7 +20,7 @@
         android:textSize="16sp" />
 
     <TextView
-        android:id="@+id/desc"
+        android:id="@+id/item_desc"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/item_user_name"
