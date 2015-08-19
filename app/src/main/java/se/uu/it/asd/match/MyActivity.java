@@ -1,5 +1,6 @@
 package se.uu.it.asd.match;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -8,20 +9,52 @@ import android.net.ConnectivityManager;
 import android.os.Message;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Adapter;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.ListView;
+import android.widget.TextView;
+
+import com.android.volley.Response;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import se.uu.it.asd.match.adapters.CustomListViewAdapter;
+import se.uu.it.asd.match.beans.RowItemService;
+import se.uu.it.asd.match.utils.MatchAPI;
 
 
-public class MyActivity extends ActionBarActivity {
+public class MyActivity extends AppCompatActivity {
     public final static String EXTRA_MESSAGE = "se.uu.it.asd.match.MESSAGE";
+    private static MatchAPI mAPI;
+    ListView listView;
+    List<RowItemService> rowItems;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_my);
+
+        mAPI = MatchAPI.getInstance(this);
+        rowItems = new ArrayList<RowItemService>();
+        listView = (ListView) findViewById(R.id.main_list_view);
+        CustomListViewAdapter adapter = new CustomListViewAdapter(this, R.layout.list_item, rowItems);
+        listView.setAdapter(adapter);
+        try {
+            fetchList(null);
+        }catch (JSONException e){
+
+        }
     }
 
     @Override
@@ -59,11 +92,41 @@ public class MyActivity extends ActionBarActivity {
         startActivity(intent);
     }
 
-    public void fetchList(View view) {
+    private String getStringOrNull(JSONArray response, int index) {
+        if(response.isNull(index)){
+            return "null";
+        }else{
+            try {
+                return response.getString(index);
+            } catch (JSONException e) {
+                e.printStackTrace();
+                return "ERROR";
+            }
+        }
+    }
+
+    public void fetchList(View view) throws JSONException {
         ConnectivityManager connManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         if (connManager.getActiveNetworkInfo().isConnected()) {
-            MatchAPI.fetchListTasks();
-            buildAlertDialog("Download", "Works");
+            MatchAPI.fetchListTasks(new Response.Listener<JSONArray>() {
+                @Override
+                public void onResponse(JSONArray response) {
+                    ArrayList<RowItemService> rowItems = new ArrayList<RowItemService>();
+                    JSONObject jo;
+                    for(int i=0; i<response.length(); i++){
+                        try {
+                            jo = response.getJSONObject(i);
+                            rowItems.add(new RowItemService((int)jo.get("id"), (int)jo.get("assigned"), null,
+                                    (String) jo.get("request"), (String)jo.get("user_request"), R.drawable.ic_contact_picture));
+                        } catch(JSONException e){
+
+                        }
+                    }
+
+                    CustomListViewAdapter adapter = new CustomListViewAdapter(getApplicationContext(), R.layout.list_item, rowItems);
+                    listView.setAdapter(adapter);
+                }
+            });
         } else {
             buildAlertDialog("Error", "No internet connection");
         }
