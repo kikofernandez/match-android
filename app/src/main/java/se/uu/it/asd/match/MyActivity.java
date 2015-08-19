@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.os.Message;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -15,6 +16,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Adapter;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -34,9 +36,11 @@ import se.uu.it.asd.match.beans.RowItemService;
 import se.uu.it.asd.match.utils.MatchAPI;
 
 
-public class MyActivity extends AppCompatActivity {
+public class MyActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
     public final static String EXTRA_MESSAGE = "se.uu.it.asd.match.MESSAGE";
+    public final static String REQUEST_INFO = "se.uu.it.asd.match.REQUEST_INFO";
     private static MatchAPI mAPI;
+    private CustomListViewAdapter adapter;
     ListView listView;
     List<RowItemService> rowItems;
 
@@ -48,13 +52,9 @@ public class MyActivity extends AppCompatActivity {
         mAPI = MatchAPI.getInstance(this);
         rowItems = new ArrayList<RowItemService>();
         listView = (ListView) findViewById(R.id.main_list_view);
-        CustomListViewAdapter adapter = new CustomListViewAdapter(this, R.layout.list_item, rowItems);
+        adapter = new CustomListViewAdapter(this, R.layout.list_item, rowItems);
         listView.setAdapter(adapter);
-        try {
-            fetchList(null);
-        }catch (JSONException e){
-
-        }
+        listView.setOnItemClickListener(this);
     }
 
     @Override
@@ -108,23 +108,32 @@ public class MyActivity extends AppCompatActivity {
     public void fetchList(View view) throws JSONException {
         ConnectivityManager connManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         if (connManager.getActiveNetworkInfo().isConnected()) {
+            Log.d("NETWORK", "Fetch task");
             MatchAPI.fetchListTasks(new Response.Listener<JSONArray>() {
                 @Override
                 public void onResponse(JSONArray response) {
+                    JSONObject json;
+                    JSONArray arr;
                     ArrayList<RowItemService> rowItems = new ArrayList<RowItemService>();
-                    JSONObject jo;
                     for(int i=0; i<response.length(); i++){
                         try {
-                            jo = response.getJSONObject(i);
-                            rowItems.add(new RowItemService((int)jo.get("id"), (int)jo.get("assigned"), null,
-                                    (String) jo.get("request"), (String)jo.get("user_request"), R.drawable.ic_contact_picture));
-                        } catch(JSONException e){
+                            json = response.getJSONObject(i);
+                            arr = json.getJSONArray("skills");
 
+                            String[] skills = new String[arr.length()];
+                            for(int skill_no=0; skill_no<arr.length(); skill_no++){
+                                skills[skill_no] = (String) arr.get(skill_no);
+                            }
+
+                            rowItems.add(new RowItemService((int)json.get("id"), (int)json.get("assigned"), (String[]) skills,
+                                    (String) json.get("request"), (String)json.get("user_request"), R.drawable.ic_contact_picture));
+                        } catch(JSONException e){
+                            Log.d("ERROR", "JSON object cannot be added");
                         }
                     }
 
-                    CustomListViewAdapter adapter = new CustomListViewAdapter(getApplicationContext(), R.layout.list_item, rowItems);
-                    listView.setAdapter(adapter);
+                    adapter.clear();
+                    adapter.addAll(rowItems);
                 }
             });
         } else {
@@ -144,5 +153,13 @@ public class MyActivity extends AppCompatActivity {
                     }
                 });
         dialog.show();
+    }
+
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        Intent intent = new Intent(this, ServiceItem.class);
+        RowItemService row = rowItems.get(position);
+        intent.putExtra(REQUEST_INFO, row);
+        startActivity(intent);
     }
 }

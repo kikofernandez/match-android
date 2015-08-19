@@ -2,6 +2,7 @@ package se.uu.it.asd.match.adapters;
 
 import android.app.Activity;
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,9 +35,11 @@ public class CustomListViewAdapter extends ArrayAdapter<RowItemService> {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        ViewHolder holder = null;
+        ViewHolder holder;
         RowItemService rowItem = getItem(position);
+
         LayoutInflater mInflater = (LayoutInflater) mContext.getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
+
         if(convertView == null){
             convertView = mInflater.inflate(R.layout.list_item, null);
             holder = new ViewHolder();
