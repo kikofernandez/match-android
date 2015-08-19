@@ -8,4 +8,6 @@
     <string name="title_activity_display_message">My Message</string>
     <string name="image">Image</string>
     <string name="refresh_services">Update</string>
+    <string name="request_info_user">user</string>
+    <string name="request_info_description">description</string>
 </resources>
