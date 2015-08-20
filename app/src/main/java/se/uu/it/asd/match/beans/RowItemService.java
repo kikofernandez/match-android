@@ -8,13 +8,19 @@ import android.util.Log;
  * Created by kikofernandezreyes on 19/08/15.
  */
 public class RowItemService implements Parcelable{
-    private int id, assigned, image;
+    private int id, assigned, image, no_people;
     private String[] skills;
-    private String request, user_request;
+    private String request, user_request, status, priority, cancellable;
 
     public RowItemService(Parcel in){
         id = in.readInt();
-        assigned = in.readInt();
+
+        assigned = in.readInt(); // IntArray
+//        status = in.readString();
+//        priority = in.readString();
+//        no_people = in.readInt();
+//        cancellable = in.readString(); // Cancellable/ non-canc.
+
         image = in.readInt();
         skills = in.createStringArray();
         request = in.readString();
@@ -28,6 +34,38 @@ public class RowItemService implements Parcelable{
         this.request = request;
         this.user_request = "@"+user_request;
         this.image = image;
+    }
+
+    public int getNo_people() {
+        return no_people;
+    }
+
+    public void setNo_people(int no_people) {
+        this.no_people = no_people;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getPriority() {
+        return priority;
+    }
+
+    public void setPriority(String priority) {
+        this.priority = priority;
+    }
+
+    public String getCancellable() {
+        return cancellable;
+    }
+
+    public void setCancellable(String cancellable) {
+        this.cancellable = cancellable;
     }
 
     public int getImage() {

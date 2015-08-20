@@ -11,4 +11,5 @@
     <string name="image">Image</string>
     <string name="request_info_user">user</string>
     <string name="request_info_description">description</string>
+    <string name="confirm_service">Confirm</string>
 </resources>

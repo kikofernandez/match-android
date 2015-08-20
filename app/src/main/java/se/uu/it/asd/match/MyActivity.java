@@ -125,7 +125,8 @@ public class MyActivity extends AppCompatActivity implements AdapterView.OnItemC
                                 skills[skill_no] = (String) arr.get(skill_no);
                             }
 
-                            rowItems.add(new RowItemService((int)json.get("id"), (int)json.get("assigned"), skills,
+                            int size = json.getJSONArray("assigned").length();
+                            rowItems.add(new RowItemService((int)json.get("id"), size, skills,
                                     (String) json.get("request"), (String)json.get("user_request"), R.drawable.ic_contact_picture));
                         } catch(JSONException e){
                             Log.d("ERROR", "JSON object cannot be added");

@@ -1,9 +1,13 @@
 package se.uu.it.asd.match;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -14,6 +18,7 @@ import se.uu.it.asd.match.beans.RowItemService;
  */
 public class ServiceItem extends AppCompatActivity {
     private ImageView mImage;
+    private Button mButton;
     private TextView mRequestInfoUser, mRequestInfoDescription;
 
     @Override
@@ -25,6 +30,7 @@ public class ServiceItem extends AppCompatActivity {
         mImage = (ImageView) findViewById(R.id.request_info_icon);
         mRequestInfoUser = (TextView) findViewById(R.id.request_info_user);
         mRequestInfoDescription = (TextView) findViewById(R.id.request_info_description);
+        mButton= (Button) findViewById(R.id.confirm_service);
 
         // Restore info passed from the parent activity
         Intent intent = getIntent();
@@ -36,6 +42,8 @@ public class ServiceItem extends AppCompatActivity {
         mRequestInfoUser.setText(row.getUser_request());
         mRequestInfoDescription.setText(row.getRequest());
     }
+
+
 
     // Override this method if you want to go to the parent activity without
     // killing all the activities and restarting the app
@@ -51,4 +59,9 @@ public class ServiceItem extends AppCompatActivity {
         }
     }
 
+    public void confirmService(View view) {
+        Log.d("Confirm", "ACCEPT");
+        mButton.setBackgroundColor(Color.GREEN);
+        mButton.setClickable(false);
+    }
 }
